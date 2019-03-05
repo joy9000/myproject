@@ -1,0 +1,199 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace delete_and_Auoto_ID
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        SqlConnection cnn = new SqlConnection();
+        SqlDataAdapter da = new SqlDataAdapter();
+        DataSet ds = new DataSet();
+        SqlCommand cm = new SqlCommand();
+        SqlDataReader re;
+
+   
+
+        string str = "Data Source=(local);Initial Catalog=db2;Integrated Security=True";
+
+
+
+
+        private void Form1_Load(object sender, EventArgs e)
+
+        {
+            runAuotoID();
+            cnn.ConnectionString = str;
+            if (cnn.State == ConnectionState.Closed)
+                cnn.Open();
+            da = new SqlDataAdapter("select*from tbuser", cnn);
+            da.Fill(ds, "tbuser");
+            ds.Tables.Clear();
+            da.Fill(ds, "tbuser");
+            dgv1.DataSource = ds.Tables[0];
+            dgv1.Refresh();
+
+            dgv1.Columns[0].HeaderText = "?????";
+            dgv1.Columns[1].HeaderText = "?????????";
+            dgv1.Columns[2].HeaderText = "?????";
+            dgv1.Columns[3].HeaderText = "?????????????????";
+
+        }
+
+       
+        private void btnsave_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("??????????????????????", "?????", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                cnn.Close();
+
+                cnn.ConnectionString = str;
+                if (cnn.State == ConnectionState.Closed)
+                    cnn.Open();
+                cm = new SqlCommand("insert into tbuser values('" + txtid.Text + "','" + txtuser.Text + "','" + txtpassword.Text + "','" + cbo.Text + "')", cnn);
+                cm.ExecuteNonQuery();
+            }
+            da = new SqlDataAdapter("select*from tbuser", cnn);
+            da.Fill(ds, "tbuser");
+            ds.Tables.Clear();
+            da.Fill(ds, "tbuser");
+            dgv1.DataSource = ds.Tables[0];
+            dgv1.Refresh();
+            dgv1.Columns[0].HeaderText = "?????";
+            dgv1.Columns[1].HeaderText = "?????????";
+            dgv1.Columns[2].HeaderText = "?????";
+            dgv1.Columns[3].HeaderText = "?????????????????";
+
+            txtid.Clear();
+            txtuser.Clear();
+            txtpassword.Clear();
+            txtuser.Focus();
+            runAuotoID();
+
+        }
+
+        private void dgv1_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            try
+            {
+                txtid.Text       = dgv1.CurrentRow.Cells[0].Value.ToString();
+                txtuser.Text     = dgv1.CurrentRow.Cells[1].Value.ToString();
+                txtpassword.Text = dgv1.CurrentRow.Cells[2].Value.ToString();
+                cbo.Text         = dgv1.CurrentRow.Cells[3].Value.ToString();
+               
+            }
+            catch
+            {
+
+            }
+        }
+
+       private void button1_Click(object sender, EventArgs e)
+        {
+            cnn.Close();
+            cnn.ConnectionString = str;
+            if (cnn.State == ConnectionState.Closed)
+                cnn.Open();
+            cm = new SqlCommand("Delete from tbuser where userid=  '" + txtid.Text + "'", cnn);
+            cm.ExecuteNonQuery();
+
+            da = new SqlDataAdapter("select*from tbuser", cnn);
+            da.Fill(ds, "tbuser");
+            ds.Tables.Clear();
+            da.Fill(ds, "tbuser");
+            dgv1.DataSource = ds.Tables[0];
+            dgv1.Refresh();
+
+            dgv1.Columns[0].HeaderText = "?????";
+            dgv1.Columns[1].HeaderText = "?????????";
+            dgv1.Columns[2].HeaderText = "?????";
+            dgv1.Columns[3].HeaderText = "?????????????????";
+            txtid.Clear();
+            txtuser.Clear();
+            txtpassword.Clear();
+            txtuser.Focus();
+            runAuotoID();
+        }
+        private void runAuotoID()
+        {
+            int id;
+            cnn.Close();
+            cnn.ConnectionString = str;
+            if (cnn.State == ConnectionState.Closed)
+                cnn.Open();
+            cm = new SqlCommand("select top 1 userid from tbuser order by userid desc", cnn);
+            re = cm.ExecuteReader();
+            if (re.HasRows)
+            {
+                while (re.Read())
+                {
+                    string a;
+                    a = re[0].ToString();
+                    id = int.Parse(a) + 1;
+                    txtid.Text = id.ToString();
+
+                }
+            }
+            else
+            {
+                txtid.Text = "1";
+
+            }
+            re.Close();
+            cnn.Close();
+
+        }
+
+        private void btnclear_Click(object sender, EventArgs e)
+        {
+            txtid.Clear();
+            txtuser.Clear();
+            txtpassword.Clear();
+            txtuser.Focus();
+            runAuotoID();
+        }
+
+        private void btnupdate_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("??????????????????", "?????", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                cnn.Close();
+
+                cnn.ConnectionString = str;
+                if (cnn.State == ConnectionState.Closed)
+                    cnn.Open();
+                cm = new SqlCommand("update tbuser set Username='" + txtuser.Text + "', Password='" + txtpassword.Text +"', priority='" + cbo.Text + "' where userid='" + txtid.Text +"'", cnn);
+                cm.ExecuteNonQuery();
+                //????????????????????????
+            }
+            da = new SqlDataAdapter("select*from tbuser", cnn);
+            da.Fill(ds, "tbuser");
+            ds.Tables.Clear();
+            da.Fill(ds, "tbuser");
+            dgv1.DataSource = ds.Tables[0];
+            dgv1.Refresh();
+            dgv1.Columns[0].HeaderText = "?????";
+            dgv1.Columns[1].HeaderText = "?????????";
+            dgv1.Columns[2].HeaderText = "?????";
+            dgv1.Columns[3].HeaderText = "?????????????????";
+
+            txtid.Clear();
+            txtuser.Clear();
+            txtpassword.Clear();
+            txtuser.Focus();
+            runAuotoID();
+        }
+    }
+ }
+
